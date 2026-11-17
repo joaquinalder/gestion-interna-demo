@@ -1,0 +1,35 @@
+name: Gestion Interna CI
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  django:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: gestion_demo
+          POSTGRES_USER: gestion_demo
+          POSTGRES_PASSWORD: test-only-password
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U gestion_demo -d gestion_demo"
+          --health-interval 3s --health-timeout 3s --health-retries 20
+    env:
+      POSTGRES_HOST: 127.0.0.1
+      POSTGRES_DB: gestion_demo
+      POSTGRES_USER: gestion_demo
+      POSTGRES_PASSWORD: test-only-password
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - run: python manage.py check
+      - run: python manage.py test
+      - run: python manage.py migrate
+      - run: python manage.py seed_demo
+      - run: python manage.py seed_demo

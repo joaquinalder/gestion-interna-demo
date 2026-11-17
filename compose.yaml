@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-gestion_demo}
+      POSTGRES_USER: ${POSTGRES_USER:-gestion_demo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Completá POSTGRES_PASSWORD en .env}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - db-data:/var/lib/postgresql/data
+  web:
+    build: .
+    environment:
+      DJANGO_DEBUG: 'true'
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-}
+      POSTGRES_DB: ${POSTGRES_DB:-gestion_demo}
+      POSTGRES_USER: ${POSTGRES_USER:-gestion_demo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Completá POSTGRES_PASSWORD en .env}
+      POSTGRES_HOST: db
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - '127.0.0.1:8090:8000'
+volumes:
+  db-data:

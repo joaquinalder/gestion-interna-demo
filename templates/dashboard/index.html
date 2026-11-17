@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% comment %}Dashboard (T3.5). Diseño del prototipo. CEO-D6: empty states.{% endcomment %}
+
+{% block title %}Dashboard — Gestión Interna Demo{% endblock %}
+
+{% block contenido %}
+  <div class="head">
+    <div>
+      <h1>Dashboard</h1>
+      <p>Resumen del período {{ periodo }}</p>
+    </div>
+    <div class="head-actions">
+      <a class="btn ghost" href="/admin/ventas/venta/add/">Registrar venta</a>
+      <a class="btn" href="/admin/clientes/cliente/add/">Nuevo cliente</a>
+    </div>
+  </div>
+
+  {% if sin_datos %}
+    {# CEO-D6: primera impresión del go-live — guía, no ceros que parezcan roto. #}
+    <div class="vacio">
+      <h3>Todavía no hay actividad cargada este mes</h3>
+      <p>Cuando cargues clientes, registres ventas y emitas la primera factura,
+         acá vas a ver tu facturación, el avance contra la meta de equipos y el
+         estado de tus servicios. Empezá por
+         <a href="/admin/clientes/cliente/add/">cargar un cliente</a>.</p>
+    </div>
+  {% else %}
+    <div class="kpis">
+      <div class="kpi">
+        <div class="lbl">Facturación del mes</div>
+        <div class="val">$ {{ kpis.facturacion_mes|floatformat:0 }}</div>
+        <div class="delta">IVA: $ {{ kpis.iva_mes|floatformat:0 }}</div>
+      </div>
+      <div class="kpi">
+        <div class="lbl">Servicios activos</div>
+        <div class="val">{{ kpis.servicios_activos }}</div>
+        <div class="delta">contratos con comodato</div>
+      </div>
+      <div class="kpi">
+        <div class="lbl">Equipos vendidos</div>
+        <div class="val">{{ kpis.equipos_vendidos_mes }} <span class="muted" style="font-size:15px">/ {{ kpis.meta_equipos }}</span></div>
+        <div class="meta-prog">
+          <div class="bar"><span style="width: {{ kpis.avance_meta_equipos_pct }}%"></span></div>
+        </div>
+        <div class="delta">{{ kpis.avance_meta_equipos_pct }}% de la meta mensual</div>
+      </div>
+      <div class="kpi">
+        <div class="lbl">Gastos de estructura</div>
+        <div class="val">$ {{ kpis.gastos_mes|floatformat:0 }}</div>
+        <div class="delta">cargados este mes</div>
+      </div>
+    </div>
+
+    {# El punto de equilibrio se conecta tras confirmar la fórmula con el amigo (T0.1). #}
+  {% endif %}
+
+  <section>
+    <div class="panel" style="padding-bottom:6px">
+      <h3>Próximas reposiciones</h3>
+      <div class="sub">Visitas pendientes ordenadas por fecha</div>
+    </div>
+    {% if reposiciones %}
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Cliente</th><th>Fecha programada</th><th>Esencia</th><th>Estado</th></tr></thead>
+          <tbody>
+            {% for r in reposiciones %}
+              <tr>
+                <td class="strong">{{ r.contrato.cliente.razon_social }}</td>
+                <td>{{ r.fecha_programada|date:"d/m/Y" }}</td>
+                <td>{{ r.esencia.nombre|default:"—" }}</td>
+                <td><span class="badge b-pend">Pendiente</span></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="panel"><span class="muted">No hay reposiciones pendientes.</span></div>
+    {% endif %}
+  </section>
+{% endblock %}

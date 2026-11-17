@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Clientes — Gestión Interna Demo{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Form helpers (buscador) — coherentes con app.css */
+  .toolbar form { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; width: 100%; }
+  .toolbar .search { flex: 1; min-width: 220px; max-width: 360px; position: relative; }
+  .toolbar .search input {
+    width: 100%; padding: 9px 12px 9px 36px;
+    border: 1px solid var(--line); border-radius: 8px; background: #fff;
+    font-size: 13px; color: var(--ink);
+  }
+  .toolbar .search svg {
+    position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+    width: 15px; height: 15px; stroke: var(--muted); fill: none; stroke-width: 2;
+  }
+  .acciones-fila a { color: var(--brand-deep); font-weight: 600; margin-right: 12px; }
+  .acciones-fila a:hover { text-decoration: underline; }
+  .pager { display: flex; gap: 6px; justify-content: center; margin-top: 16px; }
+  .pager a, .pager span {
+    padding: 6px 12px; border-radius: 8px; border: 1px solid var(--line);
+    color: var(--muted); font-size: 13px; background: #fff;
+  }
+  .pager .actual { background: var(--brand); color: #fff; border-color: var(--brand); }
+  .messages { margin-bottom: 16px; }
+  .messages .ok {
+    background: var(--brand-soft); border: 1px solid #99e7da;
+    color: var(--brand-deep); padding: 10px 14px; border-radius: 10px;
+    font-size: 13px;
+  }
+</style>
+{% endblock %}
+
+{% block contenido %}
+
+  {% if messages %}
+    <div class="messages">
+      {% for m in messages %}
+        <div class="ok">{{ m }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="head">
+    <div>
+      <h1>Clientes</h1>
+      <p>Razón social, CUIT y tipo · {{ total }} cliente{{ total|pluralize:"s" }}</p>
+    </div>
+    <div class="head-actions">
+      <a href="{% url 'clientes:nuevo' %}" class="btn">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Nuevo cliente
+      </a>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <form method="get">
+      <div class="search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4-4"/></svg>
+        <input type="text" name="q" value="{{ q }}" placeholder="Buscar por razón social, CUIT o contacto..." />
+      </div>
+      <div class="chips">
+        <a href="?{% if q %}q={{ q }}{% endif %}" class="chip {% if not tipo_actual %}on{% endif %}">Todos</a>
+        {% for val, label in tipos %}
+          <a href="?tipo={{ val }}{% if q %}&q={{ q }}{% endif %}" class="chip {% if tipo_actual == val %}on{% endif %}">{{ label }}</a>
+        {% endfor %}
+      </div>
+    </form>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Razón social</th>
+          <th>CUIT</th>
+          <th>Tipo</th>
+          <th>IVA</th>
+          <th>Alta</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in clientes %}
+          <tr>
+            <td class="strong">{{ c.razon_social }}</td>
+            <td class="muted">{{ c.cuit }}</td>
+            <td>
+              {% if c.tipo == 'servicio' %}<span class="tag t-srv">Servicio</span>
+              {% elif c.tipo == 'equipos' %}<span class="tag t-eq">Equipos</span>
+              {% elif c.tipo == 'esencia' %}<span class="tag t-es">Esencia</span>
+              {% elif c.tipo == 'mixto' %}<span class="tag t-mix">Mixto</span>{% endif %}
+            </td>
+            <td class="muted">{{ c.get_condicion_iva_display }}</td>
+            <td class="muted">{{ c.fecha_alta|date:"d/m/Y" }}</td>
+            <td>
+              {% if c.activo %}<span class="badge b-ok">Activo</span>
+              {% else %}<span class="badge b-due">Inactivo</span>{% endif %}
+            </td>
+            <td class="acciones-fila">
+              <a href="{% url 'clientes:editar' c.pk %}">Editar</a>
+              {% if c.activo %}<a href="{% url 'clientes:baja' c.pk %}">Dar de baja</a>{% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="7" style="text-align:center; padding: 40px; color: var(--muted);">
+              {% if q or tipo_actual %}
+                No hay clientes que coincidan con la búsqueda.
+                <a href="{% url 'clientes:lista' %}" style="color: var(--brand-deep); margin-left: 8px;">Limpiar filtros</a>
+              {% else %}
+                Todavía no hay clientes cargados.
+                <a href="{% url 'clientes:nuevo' %}" style="color: var(--brand-deep); margin-left: 8px;">Cargar el primero</a>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if is_paginated %}
+    <div class="pager">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if tipo_actual %}&tipo={{ tipo_actual }}{% endif %}">‹ Anterior</a>
+      {% endif %}
+      <span class="actual">Página {{ page_obj.number }} de {{ paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if tipo_actual %}&tipo={{ tipo_actual }}{% endif %}">Siguiente ›</a>
+      {% endif %}
+    </div>
+  {% endif %}
+
+{% endblock %}

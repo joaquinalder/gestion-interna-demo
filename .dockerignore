@@ -1,0 +1,12 @@
+*
+!apps/
+!apps/**
+!config/
+!config/**
+!templates/
+!templates/**
+!static/
+!static/**
+!manage.py
+!requirements.txt
+**/__pycache__/

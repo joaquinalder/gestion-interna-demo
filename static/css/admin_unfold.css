@@ -1,0 +1,255 @@
+/* ============================================================
+   Gestión Interna Demo — overrides finos sobre django-unfold para
+   que el admin matchee el prototipo (sidebar dark + teal).
+
+   Estrategia: forzar el sidebar a tema oscuro (#102530) y dejar
+   el contenido central con tema claro como ya viene en unfold.
+   Tokens del prototipo (app.css):
+     --bg:#f4f6f7  --ink:#1d2630  --muted:#677380  --line:#e5eaec
+     --brand:#0d9488  --brand-deep:#0f766e  --brand-soft:#ccfbf1
+   ============================================================ */
+
+:root {
+  --ba-bg: #f4f6f7;
+  --ba-ink: #1d2630;
+  --ba-muted: #677380;
+  --ba-line: #e5eaec;
+  --ba-brand: #0d9488;
+  --ba-brand-deep: #0f766e;
+  --ba-brand-soft: #ccfbf1;
+  --ba-side: #102530;
+  --ba-side-2: #1a3340;
+  --ba-side-line: #1d3a47;
+  --ba-side-text: #bfcbd2;
+  --ba-side-muted: #85939d;
+}
+
+/* === Tipografía global coherente con el dashboard === */
+body,
+input, select, textarea, button {
+  font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif !important;
+}
+
+body {
+  background-color: var(--ba-bg) !important;
+}
+
+/* ============================================================
+   SIDEBAR — fondo oscuro como el prototipo
+   ============================================================ */
+
+/* Wrapper del sidebar — unfold usa <aside> con clases tailwind */
+aside,
+aside.lg\:fixed,
+#sidebar-default,
+[id*="sidebar"]:not(button):not(input) {
+  background-color: var(--ba-side) !important;
+  border-right: 1px solid var(--ba-side-line) !important;
+  color: var(--ba-side-text) !important;
+}
+
+/* Todos los contenedores hijos del sidebar también dark */
+aside > *,
+aside div,
+aside section,
+aside nav,
+aside header,
+aside footer,
+#sidebar-default > *,
+#sidebar-default div,
+#sidebar-default section,
+#sidebar-default nav,
+#sidebar-default header,
+#sidebar-default footer {
+  background-color: transparent !important;
+  border-color: var(--ba-side-line) !important;
+}
+
+/* Brand / header del sidebar */
+aside h1, aside h2,
+#sidebar-default h1, #sidebar-default h2 {
+  color: #ffffff !important;
+}
+
+/* Subtitle (Sistema de gestión) */
+aside h1 + *, aside h2 + *,
+aside p,
+#sidebar-default p {
+  color: var(--ba-side-muted) !important;
+}
+
+/* Search input en el sidebar */
+aside input[type="text"],
+aside input[type="search"],
+aside input:not([type="checkbox"]):not([type="radio"]) {
+  background-color: var(--ba-side-2) !important;
+  border-color: #25424f !important;
+  color: #ffffff !important;
+}
+aside input::placeholder {
+  color: var(--ba-side-muted) !important;
+}
+
+/* Section titles ("General", "Clientes", "Catálogo"...) */
+aside h3,
+aside [class*="font-medium"]:not(a):not(li):not(button),
+aside [class*="text-font-important"],
+aside [class*="uppercase"]:not(a) {
+  color: var(--ba-side-muted) !important;
+  font-size: 11px !important;
+  letter-spacing: .6px !important;
+  text-transform: uppercase !important;
+}
+
+/* Links de navegación */
+aside a,
+aside li > a,
+aside nav a {
+  color: var(--ba-side-text) !important;
+  border-radius: 8px !important;
+}
+
+/* Hover de links */
+aside a:hover,
+aside li > a:hover,
+aside nav a:hover {
+  background-color: var(--ba-side-2) !important;
+  color: #ffffff !important;
+}
+
+/* Link activo (la URL actual) — teal sólido */
+aside a.bg-primary-50,
+aside a.bg-primary-100,
+aside a[class*="bg-primary"],
+aside a[aria-current="page"],
+aside .text-primary-600,
+aside .text-primary-500,
+aside li.bg-primary-50 > a {
+  background-color: var(--ba-brand) !important;
+  color: #ffffff !important;
+}
+
+/* Iconos del sidebar — heredan el color del texto */
+aside svg,
+aside [class*="material-symbols"],
+aside .material-symbols-outlined,
+aside .material-symbols-rounded {
+  color: inherit !important;
+  fill: currentColor !important;
+}
+
+/* Iconos en el link activo en blanco */
+aside a[class*="bg-primary"] svg,
+aside a[aria-current="page"] svg,
+aside a[class*="bg-primary"] [class*="material-symbols"],
+aside a[aria-current="page"] [class*="material-symbols"] {
+  color: #ffffff !important;
+}
+
+/* Botón colapsar sidebar (la flechita) */
+aside button {
+  color: var(--ba-side-muted) !important;
+}
+aside button:hover {
+  color: #ffffff !important;
+  background-color: var(--ba-side-2) !important;
+}
+
+/* Separadores dentro del sidebar */
+aside hr,
+aside [class*="border-t"],
+aside [class*="border-b"] {
+  border-color: var(--ba-side-line) !important;
+}
+
+/* ============================================================
+   HEADER superior — limpio, con acción primaria en teal
+   ============================================================ */
+
+header,
+main > header,
+[id*="topbar"] {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid var(--ba-line) !important;
+}
+
+/* ============================================================
+   CONTENIDO — cards, tablas con look del prototipo
+   ============================================================ */
+
+main, main > div, [role="main"] {
+  background-color: var(--ba-bg) !important;
+}
+
+/* Cards / contenedores principales */
+.results,
+form.aligned,
+.module,
+[class*="bg-white"]:not(aside *):not(header *) {
+  border-radius: 13px !important;
+}
+
+/* Hover de filas en tablas */
+table tbody tr:hover {
+  background-color: #f8fafc !important;
+}
+
+/* Headers de tabla en muted como el prototipo */
+table thead th,
+table thead > tr > th {
+  text-transform: uppercase !important;
+  font-size: 11px !important;
+  letter-spacing: .4px !important;
+  color: var(--ba-muted) !important;
+  font-weight: 600 !important;
+}
+
+/* ============================================================
+   BOTONES PRIMARIOS — teal con sombra sutil
+   ============================================================ */
+
+.btn-primary,
+button[type="submit"]:not([class*="btn-"]),
+input[type="submit"].default,
+a[class*="bg-primary"]:not(aside *) {
+  background-color: var(--ba-brand) !important;
+  color: #ffffff !important;
+  border-color: var(--ba-brand) !important;
+  box-shadow: 0 1px 2px rgba(20,24,40,.06), 0 2px 8px rgba(13,148,136,.18) !important;
+}
+
+.btn-primary:hover,
+button[type="submit"]:not([class*="btn-"]):hover,
+a[class*="bg-primary"]:not(aside *):hover {
+  background-color: var(--ba-brand-deep) !important;
+  border-color: var(--ba-brand-deep) !important;
+}
+
+/* Botón "+" flotante de "agregar" (esquina superior derecha) */
+a.bg-primary-600,
+a.bg-primary-500,
+[class*="rounded-full"][class*="bg-primary"] {
+  background-color: var(--ba-brand) !important;
+}
+
+/* ============================================================
+   BREADCRUMBS y títulos
+   ============================================================ */
+
+[class*="breadcrumb"] a {
+  color: var(--ba-brand-deep) !important;
+}
+
+h1.text-base-700, h1, .text-font-important-light\:text-base-700 {
+  color: var(--ba-ink) !important;
+}
+
+/* ============================================================
+   Responsive — el sidebar colapsado en mobile sigue dark
+   ============================================================ */
+
+@media (max-width: 1024px) {
+  aside, #sidebar-default {
+    background-color: var(--ba-side) !important;
+  }
+}
